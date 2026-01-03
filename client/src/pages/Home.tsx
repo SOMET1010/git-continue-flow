@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Globe, LogIn, Menu } from 'lucide-react';
 import { AfricanPattern } from '@/components/ui/african-pattern';
 import VoiceHeroButton from '@/components/VoiceHeroButton';
@@ -99,6 +99,11 @@ const footerVariants = {
  */
 export default function Home() {
   const [, setLocation] = useLocation();
+  
+  // Hooks pour l'effet parallax
+  const { scrollY } = useScroll();
+  const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
+  const overlayOpacity = useTransform(scrollY, [0, 300], [0.4, 0.7]);
 
   const handleRoleSelection = (role: string) => {
     setLocation(`/${role}`);
@@ -106,17 +111,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden font-inter">
-      {/* Background: Photo marché ivoirien floutée */}
-      <div
+      {/* Background: Photo marché ivoirien floutée avec effet parallax */}
+      <motion.div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: 'url(/marche-ivoirien.jpg)',
           filter: 'blur(3px) brightness(0.85)',
+          y: backgroundY,
+          scale: 1.15,
         }}
       />
 
-      {/* Overlay dégradé orange chaud */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#C25E00]/50 via-[#E67E22]/40 to-[#F1C40F]/30" />
+      {/* Overlay dégradé orange chaud avec opacité dynamique */}
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-br from-[#C25E00]/50 via-[#E67E22]/40 to-[#F1C40F]/30"
+        style={{ opacity: overlayOpacity }}
+      />
 
       {/* Motif Wax Digital en filigrane */}
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
