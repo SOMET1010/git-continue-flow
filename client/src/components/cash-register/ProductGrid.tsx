@@ -5,7 +5,7 @@ import { audioManager } from '@/lib/audioManager';
 interface Product {
   id: number;
   name: string;
-  basePrice: string;
+  basePrice: string | null;
   unit: string;
 }
 
@@ -66,7 +66,7 @@ export default function ProductGrid({
             <div className="text-center">
               <p className="font-bold text-lg mb-1">{product.name}</p>
               <p className="text-sm text-muted-foreground">
-                {parseInt(product.basePrice).toLocaleString('fr-FR')} FCFA/{product.unit}
+                {parseInt(product.basePrice || '0').toLocaleString('fr-FR')} FCFA/{product.unit}
               </p>
             </div>
           </Card>

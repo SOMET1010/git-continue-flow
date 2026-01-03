@@ -3,6 +3,13 @@ import { merchantDailyLogins } from "../drizzle/schema-daily-logins";
 import { eq, and } from "drizzle-orm";
 
 /**
+ * Helper to format date as YYYY-MM-DD string for PostgreSQL date columns
+ */
+function formatDateString(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+/**
  * Enregistrer un login quotidien pour un marchand
  * Retourne true si c'est le premier login du jour
  */
@@ -11,7 +18,7 @@ export async function recordDailyLogin(merchantId: number): Promise<boolean> {
   if (!db) return false;
   
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Réinitialiser à minuit pour comparaison
+  const todayStr = formatDateString(today);
   
   try {
     // Vérifier si un login existe déjà aujourd'hui
@@ -20,7 +27,7 @@ export async function recordDailyLogin(merchantId: number): Promise<boolean> {
       .where(
         and(
           eq(merchantDailyLogins.merchantId, merchantId),
-          eq(merchantDailyLogins.loginDate, today)
+          eq(merchantDailyLogins.loginDate, todayStr)
         )
       )
       .limit(1);
@@ -33,7 +40,7 @@ export async function recordDailyLogin(merchantId: number): Promise<boolean> {
     // Premier login du jour, créer l'entrée
     await db.insert(merchantDailyLogins).values({
       merchantId,
-      loginDate: today,
+      loginDate: todayStr,
       firstLoginTime: new Date(),
       briefingShown: false,
       briefingSkipped: false,
@@ -53,8 +60,7 @@ export async function markBriefingShown(merchantId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDateString(new Date());
   
   try {
     await db.update(merchantDailyLogins)
@@ -62,7 +68,7 @@ export async function markBriefingShown(merchantId: number): Promise<void> {
       .where(
         and(
           eq(merchantDailyLogins.merchantId, merchantId),
-          eq(merchantDailyLogins.loginDate, today)
+          eq(merchantDailyLogins.loginDate, todayStr)
         )
       );
   } catch (error) {
@@ -77,8 +83,7 @@ export async function markBriefingSkipped(merchantId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDateString(new Date());
   
   try {
     await db.update(merchantDailyLogins)
@@ -86,7 +91,7 @@ export async function markBriefingSkipped(merchantId: number): Promise<void> {
       .where(
         and(
           eq(merchantDailyLogins.merchantId, merchantId),
-          eq(merchantDailyLogins.loginDate, today)
+          eq(merchantDailyLogins.loginDate, todayStr)
         )
       );
   } catch (error) {
@@ -101,8 +106,7 @@ export async function hasBriefingBeenShown(merchantId: number): Promise<boolean>
   const db = await getDb();
   if (!db) return true;
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDateString(new Date());
   
   try {
     const login = await db.select()
@@ -110,7 +114,7 @@ export async function hasBriefingBeenShown(merchantId: number): Promise<boolean>
       .where(
         and(
           eq(merchantDailyLogins.merchantId, merchantId),
-          eq(merchantDailyLogins.loginDate, today)
+          eq(merchantDailyLogins.loginDate, todayStr)
         )
       )
       .limit(1);

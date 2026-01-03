@@ -1,31 +1,31 @@
 import { getDb } from "./db";
 import { eq } from "drizzle-orm";
-import { mysqlTable, int, boolean, decimal, varchar, timestamp, index } from "drizzle-orm/mysql-core";
+import { pgTable, serial, integer, boolean, decimal, varchar, timestamp, index } from "drizzle-orm/pg-core";
 import { merchants } from "../drizzle/schema";
 
-// Redéfinir la table ici pour éviter les problèmes d'import
-export const merchantSettings = mysqlTable("merchant_settings", {
-  id: int("id").autoincrement().primaryKey(),
-  merchantId: int("merchantId").notNull().references(() => merchants.id, { onDelete: "cascade" }).unique(),
+// Define the table using PostgreSQL types to match the project's database
+export const merchantSettings = pgTable("merchant_settings", {
+  id: serial("id").primaryKey(),
+  merchantId: integer("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }).unique(),
   
   // Paramètres de proposition d'épargne automatique
-  savingsProposalEnabled: boolean("savingsProposalEnabled").default(true).notNull(),
-  savingsProposalThreshold: decimal("savingsProposalThreshold", { precision: 10, scale: 2 }).default("20000").notNull(),
-  savingsProposalPercentage: decimal("savingsProposalPercentage", { precision: 5, scale: 2 }).default("2").notNull(),
+  savingsProposalEnabled: boolean("savings_proposal_enabled").default(true).notNull(),
+  savingsProposalThreshold: decimal("savings_proposal_threshold", { precision: 10, scale: 2 }).default("20000").notNull(),
+  savingsProposalPercentage: decimal("savings_proposal_percentage", { precision: 5, scale: 2 }).default("2").notNull(),
   
   // Paramètres de notifications
-  groupedOrderNotificationsEnabled: boolean("groupedOrderNotificationsEnabled").default(true).notNull(),
+  groupedOrderNotificationsEnabled: boolean("grouped_order_notifications_enabled").default(true).notNull(),
   
   // Paramètres de briefing matinal
-  morningBriefingEnabled: boolean("morningBriefingEnabled").default(true).notNull(),
-  morningBriefingTime: varchar("morningBriefingTime", { length: 5 }).default("08:00"),
+  morningBriefingEnabled: boolean("morning_briefing_enabled").default(true).notNull(),
+  morningBriefingTime: varchar("morning_briefing_time", { length: 5 }).default("08:00"),
   
   // Paramètres de rappels d'ouverture/fermeture de journée
-  reminderOpeningTime: varchar("reminderOpeningTime", { length: 5 }).default("09:00"),
-  reminderClosingTime: varchar("reminderClosingTime", { length: 5 }).default("20:00"),
+  reminderOpeningTime: varchar("reminder_opening_time", { length: 5 }).default("09:00"),
+  reminderClosingTime: varchar("reminder_closing_time", { length: 5 }).default("20:00"),
   
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   merchantIdx: index("merchant_settings_merchant_idx").on(table.merchantId),
 }));
@@ -60,7 +60,7 @@ export async function createDefaultSettings(merchantId: number): Promise<Merchan
   const db = await getDb();
   if (!db) throw new Error('Database not available');
   
-  const [newSettings] = await db
+  await db
     .insert(merchantSettings)
     .values({
       merchantId,
@@ -72,10 +72,16 @@ export async function createDefaultSettings(merchantId: number): Promise<Merchan
       morningBriefingTime: "08:00",
       reminderOpeningTime: "09:00",
       reminderClosingTime: "20:00",
-    })
-    .$returningId();
+    });
 
-  return getMerchantSettings(merchantId);
+  // Fetch and return the created settings
+  const [newSettings] = await db
+    .select()
+    .from(merchantSettings)
+    .where(eq(merchantSettings.merchantId, merchantId))
+    .limit(1);
+  
+  return newSettings;
 }
 
 /**
@@ -97,9 +103,15 @@ export async function updateMerchantSettings(
   const db = await getDb();
   if (!db) throw new Error('Database not available');
   
+  // Ensure settings exist first
+  await getMerchantSettings(merchantId);
+  
   await db
     .update(merchantSettings)
-    .set(updates)
+    .set({
+      ...updates,
+      updatedAt: new Date(),
+    })
     .where(eq(merchantSettings.merchantId, merchantId));
 
   return getMerchantSettings(merchantId);
