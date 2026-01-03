@@ -24,9 +24,10 @@ let _client: postgres.Sql | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+  if (!_db && dbUrl) {
     try {
-      _client = postgres(process.env.DATABASE_URL, {
+      _client = postgres(dbUrl, {
         max: 10,
         idle_timeout: 20,
         connect_timeout: 10,
