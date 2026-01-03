@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Globe, LogIn, Menu } from 'lucide-react';
@@ -100,10 +101,33 @@ const footerVariants = {
 export default function Home() {
   const [, setLocation] = useLocation();
   
-  // Hooks pour l'effet parallax
+  // Détection de prefers-reduced-motion pour l'accessibilité
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches);
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+  
+  // Hooks pour l'effet parallax (désactivé si reduced motion)
   const { scrollY } = useScroll();
-  const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
-  const overlayOpacity = useTransform(scrollY, [0, 300], [0.4, 0.7]);
+  const backgroundY = useTransform(
+    scrollY, 
+    [0, 500], 
+    prefersReducedMotion ? [0, 0] : [0, 150]
+  );
+  const overlayOpacity = useTransform(
+    scrollY, 
+    [0, 300], 
+    prefersReducedMotion ? [0.55, 0.55] : [0.4, 0.7]
+  );
 
   const handleRoleSelection = (role: string) => {
     setLocation(`/${role}`);
