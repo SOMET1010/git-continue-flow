@@ -1,4 +1,5 @@
 import { useLocation } from 'wouter';
+import { motion } from 'framer-motion';
 import { Globe, LogIn, Menu } from 'lucide-react';
 import { AfricanPattern } from '@/components/ui/african-pattern';
 import VoiceHeroButton from '@/components/VoiceHeroButton';
@@ -9,6 +10,87 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+// Animation variants pour effet staggered
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    },
+  },
+} as const;
+
+const headerVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+} as const;
+
+const heroCardVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 40,
+    scale: 0.95,
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+} as const;
+
+const sideCardVariants = {
+  hidden: { 
+    opacity: 0, 
+    x: 30,
+    y: 20,
+  },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+} as const;
+
+const mascotVariants = {
+  hidden: { opacity: 0, scale: 0.8, x: 50 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    x: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 80,
+      damping: 12,
+      delay: 0.5,
+    },
+  },
+} as const;
+
+const footerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.8 },
+  },
+} as const;
 
 /**
  * Page d'accueil PNAVIM-CI - "L'ÂME DU MARCHÉ"
@@ -44,7 +126,12 @@ export default function Home() {
       {/* Contenu */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* ===== HEADER ===== */}
-        <header className="w-full py-4 px-4 md:px-8">
+        <motion.header 
+          className="w-full py-4 px-4 md:px-8"
+          variants={headerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-3">
@@ -110,16 +197,24 @@ export default function Home() {
               </Button>
             </div>
           </div>
-        </header>
+        </motion.header>
 
         {/* ===== MAIN CONTENT ===== */}
         <main className="flex-1 flex flex-col items-center justify-center py-8 px-4">
           <div className="w-full max-w-6xl">
             {/* Layout: Hero card + Cartes secondaires */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <motion.div 
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
               
               {/* ===== CARTE HERO CENTRALE (Marchand) ===== */}
-              <div className="lg:col-span-2 relative">
+              <motion.div 
+                className="lg:col-span-2 relative"
+                variants={heroCardVariants}
+              >
                 <button
                   onClick={() => handleRoleSelection('merchant')}
                   className="w-full text-left group"
@@ -159,7 +254,10 @@ export default function Home() {
                     </div>
 
                     {/* Mascotte Tantie Sagesse - Débordement à droite */}
-                    <div className="absolute -right-4 lg:-right-8 bottom-0 pointer-events-none">
+                    <motion.div 
+                      className="absolute -right-4 lg:-right-8 bottom-0 pointer-events-none"
+                      variants={mascotVariants}
+                    >
                       {/* Glow effect */}
                       <div className="absolute inset-0 bg-[#F1C40F]/30 rounded-full blur-3xl scale-75 translate-y-8" />
                       
@@ -176,18 +274,19 @@ export default function Home() {
                         alt="Tantie Sagesse - Votre guide PNAVIM"
                         className="relative w-48 h-48 lg:w-64 lg:h-64 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
                       />
-                    </div>
+                    </motion.div>
                   </div>
                 </button>
-              </div>
+              </motion.div>
 
               {/* ===== CARTES SECONDAIRES (Droite) ===== */}
               <div className="flex flex-col gap-6">
                 
                 {/* Carte Agent terrain */}
-                <button
+                <motion.button
                   onClick={() => handleRoleSelection('agent')}
                   className="w-full text-left group"
+                  variants={sideCardVariants}
                 >
                   <div className="relative bg-white/80 backdrop-blur-lg rounded-[2rem] border-2 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)] transition-all duration-300 overflow-hidden p-6 min-h-[180px]">
                     
@@ -229,12 +328,13 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Carte Coopérative */}
-                <button
+                <motion.button
                   onClick={() => handleRoleSelection('cooperative')}
                   className="w-full text-left group"
+                  variants={sideCardVariants}
                 >
                   <div className="relative bg-white/80 backdrop-blur-lg rounded-[2rem] border-2 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)] transition-all duration-300 overflow-hidden p-6 min-h-[180px]">
                     
@@ -276,15 +376,20 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                </button>
+                </motion.button>
 
               </div>
-            </div>
+            </motion.div>
           </div>
         </main>
 
         {/* ===== FOOTER GLASSMORPHISM ===== */}
-        <footer className="py-6 px-4">
+        <motion.footer 
+          className="py-6 px-4"
+          variants={footerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="max-w-7xl mx-auto flex justify-center">
             <div className="inline-flex items-center gap-4 bg-white/90 backdrop-blur-xl rounded-2xl px-8 py-4 shadow-lg border border-white/50">
               {/* Logo partenaires */}
@@ -304,7 +409,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </footer>
+        </motion.footer>
       </div>
     </div>
   );
