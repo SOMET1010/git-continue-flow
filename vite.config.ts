@@ -2,13 +2,13 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
-import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { componentTagger } from "lovable-tagger";
 
-const plugins = [react(), tailwindcss(), vitePluginManusRuntime(), componentTagger()];
+// Configuration Vite simplifiée sans serveur Express
+// Utilise directement Supabase comme backend
 
 export default defineConfig({
-  plugins,
+  plugins: [react(), tailwindcss(), componentTagger()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -26,18 +26,5 @@ export default defineConfig({
   server: {
     port: 8080,
     host: true,
-    allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
-      "localhost",
-      "127.0.0.1",
-    ],
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
-    },
   },
 });
