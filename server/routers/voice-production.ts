@@ -118,7 +118,7 @@ export const voiceProductionRouter = router({
       id: z.string().uuid(),
       originalText: z.string().optional(),
       status: z.enum(["draft", "processing", "completed", "failed"]).optional(),
-      metadata: z.record(z.any()).optional(),
+      metadata: z.record(z.string(), z.any()).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -227,7 +227,7 @@ export const voiceProductionRouter = router({
 
           await fetch(uploadUrl, {
             method: "PUT",
-            body: outputAudioBuffer,
+            body: new Uint8Array(outputAudioBuffer),
             headers: {
               "Content-Type": "audio/mpeg",
             },

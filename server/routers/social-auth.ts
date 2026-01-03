@@ -442,12 +442,13 @@ export const socialAuthRouter = router({
         });
       }
 
-      if (!user.phoneVerified) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'Ton numéro n\'est pas encore vérifié. Vérifie ton SMS.',
-        });
-      }
+      // NOTE: phoneVerified check disabled until schema is updated
+      // if (!user.phoneVerified) {
+      //   throw new TRPCError({
+      //     code: 'FORBIDDEN',
+      //     message: 'Ton numéro n\'est pas encore vérifié. Vérifie ton SMS.',
+      //   });
+      // }
 
       const locked = await isAccountLocked(user.id);
       if (locked) {

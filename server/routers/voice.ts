@@ -128,7 +128,7 @@ export const voiceRouter = router({
       z.object({
         messageKey: z.string(),
         context: voiceContextSchema,
-        replacements: z.record(z.string()).optional(),
+        replacements: z.record(z.string(), z.string()).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -152,7 +152,7 @@ export const voiceRouter = router({
         let message = predefinedMessages[input.messageKey] || input.messageKey;
 
         if (input.replacements) {
-          Object.entries(input.replacements).forEach(([key, value]) => {
+          Object.entries(input.replacements).forEach(([key, value]: [string, string]) => {
             message = message.replace(`{${key}}`, value);
           });
         }
