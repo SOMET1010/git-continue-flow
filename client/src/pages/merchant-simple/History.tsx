@@ -3,17 +3,33 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, History as HistoryIcon, Calendar, TrendingUp, ShoppingBag, Filter, ChevronDown } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/hooks/useAuth';
 import { format, startOfWeek, startOfMonth, isWithinInterval } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 type FilterPeriod = 'all' | 'today' | 'week' | 'month';
 
+interface Sale {
+  id: number;
+  productId: number;
+  productName?: string;
+  quantity: number;
+  unitPrice: number | string;
+  totalAmount: number | string;
+  paymentMethod?: string;
+  createdAt: Date | string;
+}
+
 export default function MerchantHistory() {
   const [, setLocation] = useLocation();
   const [filterPeriod, setFilterPeriod] = useState<FilterPeriod>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const { merchant } = useAuth();
 
-  const { data: sales = [] } = trpc.sales.list.useQuery();
+  const { data: sales = [] } = trpc.sales.listByMerchant.useQuery(
+    { merchantId: merchant?.id || 0, limit: 100 },
+    { enabled: !!merchant?.id }
+  ) as { data: Sale[] };
 
   const filteredSales = useMemo(() => {
     const now = new Date();
@@ -21,19 +37,19 @@ export default function MerchantHistory() {
 
     switch (filterPeriod) {
       case 'today':
-        return sales.filter(s => {
+        return sales.filter((s: Sale) => {
           const saleDate = new Date(s.createdAt);
           return saleDate >= today;
         });
       case 'week':
         const weekStart = startOfWeek(now, { locale: fr });
-        return sales.filter(s => {
+        return sales.filter((s: Sale) => {
           const saleDate = new Date(s.createdAt);
           return isWithinInterval(saleDate, { start: weekStart, end: now });
         });
       case 'month':
         const monthStart = startOfMonth(now);
-        return sales.filter(s => {
+        return sales.filter((s: Sale) => {
           const saleDate = new Date(s.createdAt);
           return isWithinInterval(saleDate, { start: monthStart, end: now });
         });
@@ -43,17 +59,17 @@ export default function MerchantHistory() {
   }, [sales, filterPeriod]);
 
   const stats = useMemo(() => {
-    const totalRevenue = filteredSales.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
-    const totalItems = filteredSales.reduce((sum, s) => sum + (s.quantity || 0), 0);
+    const totalRevenue = filteredSales.reduce((sum: number, s: Sale) => sum + Number(s.totalAmount || 0), 0);
+    const totalItems = filteredSales.reduce((sum: number, s: Sale) => sum + (s.quantity || 0), 0);
     const avgSale = filteredSales.length > 0 ? totalRevenue / filteredSales.length : 0;
 
     return { totalRevenue, totalItems, avgSale, count: filteredSales.length };
   }, [filteredSales]);
 
   const groupedSales = useMemo(() => {
-    const groups: { [key: string]: typeof sales } = {};
+    const groups: { [key: string]: Sale[] } = {};
 
-    filteredSales.forEach(sale => {
+    filteredSales.forEach((sale: Sale) => {
       const date = format(new Date(sale.createdAt), 'dd MMMM yyyy', { locale: fr });
       if (!groups[date]) groups[date] = [];
       groups[date].push(sale);
@@ -174,7 +190,7 @@ export default function MerchantHistory() {
                 </div>
 
                 <div className="grid gap-3">
-                  {dateSales.map((sale, saleIndex) => (
+                  {dateSales.map((sale: Sale, saleIndex: number) => (
                     <div
                       key={sale.id}
                       className="bg-white rounded-2xl p-5 shadow-lg border-2 border-gray-200 hover:border-blue-300 transition-all"

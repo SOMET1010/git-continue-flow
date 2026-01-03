@@ -123,7 +123,7 @@ class ElevenLabsVoiceService {
         return;
       }
 
-      const result = await trpc.voice.textToSpeech.mutate({
+      const result = await (trpc.voice.textToSpeech as any).mutate({
         text: options.text,
         persona: options.persona,
         context: options.context,
@@ -151,7 +151,7 @@ class ElevenLabsVoiceService {
         return;
       }
 
-      const result = await trpc.voice.speakMessage.mutate({
+      const result = await (trpc.voice.speakMessage as any).mutate({
         messageKey: options.messageKey,
         context: options.context,
         replacements: options.replacements,
@@ -179,7 +179,7 @@ class ElevenLabsVoiceService {
         return;
       }
 
-      const result = await trpc.voice.speakAmount.mutate({
+      const result = await (trpc.voice.speakAmount as any).mutate({
         amount: options.amount,
         context: options.context,
       });
@@ -206,7 +206,7 @@ class ElevenLabsVoiceService {
         )
       );
 
-      const result = await trpc.voice.speechToSpeech.mutate({
+      const result = await (trpc.voice.speechToSpeech as any).mutate({
         audioBase64: base64Audio,
         persona,
       });
@@ -239,7 +239,7 @@ class ElevenLabsVoiceService {
 
   async checkConfiguration(): Promise<{ isConfigured: boolean; message: string }> {
     try {
-      const result = await trpc.voice.checkConfiguration.query();
+      const result = await (trpc.voice.checkConfiguration as any).query();
       return result;
     } catch (error) {
       console.error('[ElevenLabs Voice] Configuration check error:', error);

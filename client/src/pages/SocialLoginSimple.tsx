@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Phone, Lock, AlertCircle } from 'lucide-react';
-import { generateFingerprint } from '@/lib/deviceFingerprint';
+import { DeviceFingerprint } from '@/lib/deviceFingerprint';
 import { AfricanPattern } from '@/components/ui/african-pattern';
 
 export default function SocialLoginSimple() {
@@ -19,7 +19,7 @@ export default function SocialLoginSimple() {
 
   useEffect(() => {
     const initDevice = async () => {
-      const fingerprint = await generateFingerprint();
+      const fingerprint = await DeviceFingerprint.generate();
       setDeviceFingerprint(fingerprint);
     };
     initDevice();

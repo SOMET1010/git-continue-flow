@@ -3,17 +3,42 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, Wallet, Target, TrendingUp, PiggyBank, Plus, Calendar } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+
+interface SavingsGoal {
+  id: number;
+  name: string;
+  targetAmount: number | string;
+  currentAmount: number | string;
+  deadline?: Date | string | null;
+}
+
+interface SavingsTransaction {
+  id: number;
+  amount: number | string;
+  type: string;
+  createdAt: Date | string;
+}
 
 export default function MerchantSavings() {
   const [, setLocation] = useLocation();
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [goalName, setGoalName] = useState('');
   const [goalTarget, setGoalTarget] = useState('');
+  const { merchant } = useAuth();
 
-  const { data: goals = [], refetch } = trpc.savings.getGoals.useQuery();
-  const { data: transactions = [] } = trpc.savings.getTransactions.useQuery();
+  const { data: goals = [], refetch } = trpc.savings.getGoals.useQuery(
+    { merchantId: merchant?.id || 0 },
+    { enabled: !!merchant?.id }
+  ) as { data: SavingsGoal[], refetch: () => void };
+  
+  const { data: transactions = [] } = trpc.savings.getMerchantTransactions.useQuery(
+    { merchantId: merchant?.id || 0 },
+    { enabled: !!merchant?.id }
+  ) as { data: SavingsTransaction[] };
+  
   const createGoalMutation = trpc.savings.createGoal.useMutation({
     onSuccess: () => {
       refetch();
@@ -24,21 +49,21 @@ export default function MerchantSavings() {
   });
 
   const totalSaved = transactions
-    .filter(t => t.type === 'deposit')
-    .reduce((sum, t) => sum + (t.amount || 0), 0);
+    .filter((t: SavingsTransaction) => t.type === 'deposit')
+    .reduce((sum: number, t: SavingsTransaction) => sum + Number(t.amount || 0), 0);
 
   const totalWithdrawn = transactions
-    .filter(t => t.type === 'withdrawal')
-    .reduce((sum, t) => sum + (t.amount || 0), 0);
+    .filter((t: SavingsTransaction) => t.type === 'withdrawal')
+    .reduce((sum: number, t: SavingsTransaction) => sum + Number(t.amount || 0), 0);
 
   const currentBalance = totalSaved - totalWithdrawn;
 
   const handleCreateGoal = () => {
-    if (goalName && goalTarget) {
+    if (goalName && goalTarget && merchant?.id) {
       createGoalMutation.mutate({
+        merchantId: merchant.id,
         name: goalName,
         targetAmount: parseInt(goalTarget),
-        currentAmount: 0
       });
     }
   };
@@ -151,8 +176,10 @@ export default function MerchantSavings() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {goals.map((goal, index) => {
-                const progress = ((goal.currentAmount || 0) / (goal.targetAmount || 1)) * 100;
+              {goals.map((goal: SavingsGoal, index: number) => {
+                const current = Number(goal.currentAmount || 0);
+                const target = Number(goal.targetAmount || 1);
+                const progress = (current / target) * 100;
                 const isCompleted = progress >= 100;
 
                 return (

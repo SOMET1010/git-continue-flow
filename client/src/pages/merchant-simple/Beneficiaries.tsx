@@ -40,7 +40,14 @@ export default function Beneficiaries() {
   });
 
   const utils = trpc.useUtils();
-  const { data: beneficiaries, isLoading } = trpc.beneficiaries.list.useQuery();
+  const { data: beneficiaries, isLoading } = trpc.beneficiaries.list.useQuery() as {
+    data: Array<{
+      id: number;
+      nickname?: string | null;
+      contact?: { name?: string | null; phone?: string | null } | null;
+    }> | undefined;
+    isLoading: boolean;
+  };
 
   const addMutation = trpc.beneficiaries.add.useMutation({
     onSuccess: () => {
@@ -104,10 +111,10 @@ export default function Beneficiaries() {
     setIsAddDialogOpen(true);
   };
 
-  const openEditDialog = (beneficiary: any) => {
+  const openEditDialog = (beneficiary: { id: number; nickname?: string | null; contact?: { phone?: string | null } | null }) => {
     setSelectedBeneficiary(beneficiary);
     setFormData({
-      contactPhone: beneficiary.contactPhone || '',
+      contactPhone: beneficiary.contact?.phone || '',
       nickname: beneficiary.nickname || '',
     });
     setIsEditDialogOpen(true);
@@ -167,11 +174,11 @@ export default function Beneficiaries() {
                       </div>
                       <div>
                         <div className="font-semibold text-lg">
-                          {beneficiary.nickname || beneficiary.contactName || 'Sans nom'}
+                          {beneficiary.nickname || beneficiary.contact?.name || 'Sans nom'}
                         </div>
                         <div className="text-gray-500 flex items-center gap-2">
                           <Phone className="w-4 h-4" />
-                          {beneficiary.contactPhone || 'Numéro non disponible'}
+                          {beneficiary.contact?.phone || 'Numéro non disponible'}
                         </div>
                       </div>
                     </div>

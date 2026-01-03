@@ -30,8 +30,14 @@ export default function SendMoney() {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  const { data: wallet } = trpc.wallet.getBalance.useQuery();
-  const { data: beneficiaries } = trpc.beneficiaries.list.useQuery();
+  const { data: wallet } = trpc.wallet.getBalance.useQuery() as { data: { balance: number } | undefined };
+  const { data: beneficiaries } = trpc.beneficiaries.list.useQuery() as { 
+    data: Array<{
+      id: number;
+      nickname?: string | null;
+      contact?: { name?: string | null; phone?: string | null } | null;
+    }> | undefined 
+  };
   const transferMutation = trpc.wallet.transfer.useMutation({
     onSuccess: () => {
       toast.success('Transfert effectué avec succès!');
@@ -58,7 +64,7 @@ export default function SendMoney() {
       return;
     }
 
-    if (wallet && amount > wallet.balance) {
+    if (wallet && amount > Number(wallet.balance)) {
       setError('Solde insuffisant');
       return;
     }
@@ -147,14 +153,14 @@ export default function SendMoney() {
                     className="h-auto py-4 flex flex-col items-center gap-2"
                     onClick={() =>
                       selectBeneficiary(
-                        beneficiary.contactPhone || '',
-                        beneficiary.nickname || beneficiary.contactName || ''
+                        beneficiary.contact?.phone || '',
+                        beneficiary.nickname || beneficiary.contact?.name || ''
                       )
                     }
                   >
                     <User className="w-6 h-6" />
                     <span className="text-sm font-semibold">
-                      {beneficiary.nickname || beneficiary.contactName}
+                      {beneficiary.nickname || beneficiary.contact?.name}
                     </span>
                   </Button>
                 ))}
