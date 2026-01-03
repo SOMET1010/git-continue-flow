@@ -99,7 +99,7 @@ export const socialProtectionRouter = router({
           proofDocumentKey,
           merchantNotes: input.merchantNotes,
         })
-        .$returningId();
+        .returning({ id: socialProtectionRenewals.id });
 
       return {
         success: true,

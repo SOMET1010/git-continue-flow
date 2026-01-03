@@ -209,7 +209,7 @@ export const inAppNotificationsRouter = router({
           actionUrl: input.actionUrl,
           metadata: input.metadata,
         })
-        .$returningId();
+        .returning({ id: inAppNotifications.id });
 
       return { success: true, notificationId: notification.id };
     }),

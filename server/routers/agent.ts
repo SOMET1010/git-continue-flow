@@ -137,7 +137,7 @@ export const agentRouter = router({
             phone: input.phone,
             role: 'merchant',
           })
-          .$returningId();
+          .returning({ id: users.id });
 
         // 4. Créer le marchand
         await db.insert(merchants).values({

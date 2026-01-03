@@ -48,7 +48,7 @@ export const challengesRouter = router({
         courseId: input.courseId,
         challengerScore: challengerAttempt.score,
         status: 'pending',
-      }).$returningId();
+      }).returning({ id: challenges.id });
 
       return { success: true, challengeId: challenge.id };
     }),
