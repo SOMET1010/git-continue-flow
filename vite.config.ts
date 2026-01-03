@@ -1,12 +1,11 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { componentTagger } from "lovable-tagger";
 
-
-const plugins = [react(), tailwindcss(), vitePluginManusRuntime()];
+const plugins = [react(), tailwindcss(), vitePluginManusRuntime(), componentTagger()];
 
 export default defineConfig({
   plugins,
@@ -25,6 +24,7 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 8080,
     host: true,
     allowedHosts: [
       ".manuspre.computer",
