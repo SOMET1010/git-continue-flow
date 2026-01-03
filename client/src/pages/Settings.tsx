@@ -410,7 +410,7 @@ export default function Settings() {
 
               <div className="flex justify-center py-4">
                 <ProfilePhotoUpload
-                  currentPhotoUrl={user?.profilePhotoUrl}
+                  currentPhotoUrl={undefined}
                   onPhotoUploaded={(url) => {
                     console.log('Photo uploaded:', url);
                   }}
@@ -425,7 +425,7 @@ export default function Settings() {
                   <Input
                     id="name"
                     type="text"
-                    value={user?.name || merchant?.name || ''}
+                    value={user?.name || merchant?.businessName || ''}
                     disabled
                     className="text-lg h-12 bg-gray-100"
                   />

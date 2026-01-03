@@ -3,15 +3,30 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, Package, Search, AlertTriangle, TrendingUp, Plus, Minus, Check } from 'lucide-react';
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/hooks/useAuth';
+
+interface Product {
+  id: number;
+  name: string;
+  price?: number;
+  stock?: number;
+  category?: string;
+  imageUrl?: string;
+}
 
 export default function MerchantStock() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProduct, setEditingProduct] = useState<number | null>(null);
   const [newQuantity, setNewQuantity] = useState<number>(0);
+  const { merchant } = useAuth();
 
-  const { data: products = [], refetch } = trpc.products.list.useQuery();
-  const updateStockMutation = trpc.products.updateStock.useMutation({
+  const { data: products = [], refetch } = trpc.stock.listByMerchant.useQuery(
+    { merchantId: merchant?.id || 0 },
+    { enabled: !!merchant?.id }
+  ) as { data: Product[], refetch: () => void };
+  
+  const updateStockMutation = trpc.stock.update.useMutation({
     onSuccess: () => {
       refetch();
       setEditingProduct(null);
@@ -22,18 +37,18 @@ export default function MerchantStock() {
   const filteredProducts = useMemo(() => {
     if (!searchQuery) return products;
     const query = searchQuery.toLowerCase();
-    return products.filter(p =>
+    return products.filter((p: Product) =>
       p.name.toLowerCase().includes(query) ||
       p.category?.toLowerCase().includes(query)
     );
   }, [products, searchQuery]);
 
-  const lowStockProducts = products.filter(p => (p.stock || 0) < 5);
-  const outOfStockProducts = products.filter(p => (p.stock || 0) === 0);
-  const totalValue = products.reduce((sum, p) => sum + ((p.stock || 0) * (p.price || 0)), 0);
+  const lowStockProducts = products.filter((p: Product) => (p.stock || 0) < 5);
+  const outOfStockProducts = products.filter((p: Product) => (p.stock || 0) === 0);
+  const totalValue = products.reduce((sum: number, p: Product) => sum + ((p.stock || 0) * (p.price || 0)), 0);
 
   const handleUpdateStock = (productId: number, adjustment: number) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find((p: Product) => p.id === productId);
     if (!product) return;
 
     const newStock = Math.max(0, (product.stock || 0) + adjustment);

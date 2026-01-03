@@ -36,8 +36,17 @@ export function VoiceLibrary({ onRecordingSelected }: VoiceLibraryProps) {
       toast.error(`Erreur: ${error.message}`);
     },
   });
+  interface Recording {
+    id: string;
+    originalText?: string;
+    createdAt: Date | string;
+    durationSeconds?: number;
+    fileSizeBytes?: number;
+    status: string;
+    audioUrl: string;
+  }
 
-  const filteredRecordings = recordings?.filter((recording) => {
+  const filteredRecordings = recordings?.filter((recording: Recording) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -120,7 +129,7 @@ export function VoiceLibrary({ onRecordingSelected }: VoiceLibraryProps) {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredRecordings.map((recording) => (
+          {filteredRecordings.map((recording: Recording) => (
             <Card key={recording.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">

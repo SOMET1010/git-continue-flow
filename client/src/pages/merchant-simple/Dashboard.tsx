@@ -4,16 +4,31 @@ import { ShoppingCart, Package, History, Home, User, Eye, EyeOff, TrendingUp, Al
 import InstitutionalHeader from '@/components/InstitutionalHeader';
 import { AfricanPattern } from '@/components/ui/african-pattern';
 import { trpc } from '@/lib/trpc';
+import { useAuth } from '@/hooks/useAuth';
+
+interface StockItem {
+  id: number;
+  quantity: number;
+  alertThreshold?: number;
+  productName?: string;
+}
 
 export default function MerchantDashboard() {
   const [, setLocation] = useLocation();
   const [showBalance, setShowBalance] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { merchant } = useAuth();
 
   // Récupération des données en temps réel
-  const { data: salesData } = trpc.sales.getTodayStats.useQuery();
-  const { data: stockData } = trpc.products.getAll.useQuery();
-  const { data: weather } = trpc.weather.getCurrentWeather.useQuery();
+  const { data: salesData } = trpc.sales.todayStats.useQuery(
+    { merchantId: merchant?.id || 0 },
+    { enabled: !!merchant?.id }
+  );
+  const { data: stockData } = trpc.stock.listByMerchant.useQuery(
+    { merchantId: merchant?.id || 0 },
+    { enabled: !!merchant?.id }
+  );
+  const { data: weather } = trpc.weather.current.useQuery();
 
   // Mise à jour de la date toutes les minutes
   useEffect(() => {
@@ -32,11 +47,12 @@ export default function MerchantDashboard() {
   };
 
   // Calcul du total en caisse aujourd'hui
-  const totalCaisse = salesData?.totalRevenue || 0;
+  const totalCaisse = salesData?.totalAmount || 0;
 
   // Détection des stocks faibles (< 20%)
-  const lowStockItems = stockData?.filter(item => {
-    const stockPercentage = (item.quantity / (item.quantity + 50)) * 100; // Approximation
+  const lowStockItems = stockData?.filter((item) => {
+    const qty = Number(item.quantity) || 0;
+    const stockPercentage = (qty / (qty + 50)) * 100; // Approximation
     return stockPercentage < 20;
   }) || [];
 

@@ -41,11 +41,20 @@ export function VoiceTransformationPanel({ recordingId }: VoiceTransformationPan
       toast.error(`Erreur: ${error.message}`);
     },
   });
+  interface Transformation {
+    id: string;
+    targetVoiceId: string;
+    status: string;
+    createdAt: Date | string;
+    outputAudioUrl?: string;
+    errorMessage?: string;
+    processingTimeMs?: number;
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
       const hasPending = transformations?.some(
-        (t) => t.status === "pending" || t.status === "processing"
+        (t: Transformation) => t.status === "pending" || t.status === "processing"
       );
       if (hasPending) {
         refetchTransformations();
@@ -200,7 +209,7 @@ export function VoiceTransformationPanel({ recordingId }: VoiceTransformationPan
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {transformations.map((transformation) => {
+              {transformations.map((transformation: Transformation) => {
                 const persona = VOICE_PERSONAS.find((p) => p.id === transformation.targetVoiceId);
                 return (
                   <div

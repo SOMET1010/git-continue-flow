@@ -21,12 +21,12 @@ export default function Wallet() {
     { refetchInterval: 30000 }
   );
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number | string) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'XOF',
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(Number(amount));
   };
 
   const formatDate = (date: Date) => {
@@ -94,7 +94,7 @@ export default function Wallet() {
             </CardHeader>
             <CardContent>
               <div className="text-5xl font-bold mb-6">
-                {formatAmount(wallet?.balance || 0)}
+                {formatAmount(Number(wallet?.balance) || 0)}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Button
