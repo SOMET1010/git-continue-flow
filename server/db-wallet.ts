@@ -439,8 +439,9 @@ export async function creditWalletFromSale(params: {
     const [transaction] = await tx
       .insert(walletTransactions)
       .values({
-        toWalletId: wallet.id,
+        fromWalletId: null,
         toUserId: userId,
+        fromUserId: userId,
         amount,
         currency: "XOF",
         type: "deposit",

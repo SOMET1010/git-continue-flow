@@ -38,15 +38,15 @@ export function VoiceLibrary({ onRecordingSelected }: VoiceLibraryProps) {
   });
   interface Recording {
     id: string;
-    originalText?: string;
-    createdAt: Date | string;
-    durationSeconds?: number;
-    fileSizeBytes?: number;
+    originalText?: string | null;
+    createdAt: Date | string | null;
+    durationSeconds?: number | null;
+    fileSizeBytes?: number | null;
     status: string;
     audioUrl: string;
   }
 
-  const filteredRecordings = recordings?.filter((recording: Recording) => {
+  const filteredRecordings = recordings?.filter((recording) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -129,13 +129,13 @@ export function VoiceLibrary({ onRecordingSelected }: VoiceLibraryProps) {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredRecordings.map((recording: Recording) => (
+          {filteredRecordings.map((recording) => (
             <Card key={recording.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-lg">
-                      Enregistrement du {new Date(recording.createdAt).toLocaleDateString()}
+                      Enregistrement du {recording.createdAt ? new Date(recording.createdAt).toLocaleDateString() : 'Date inconnue'}
                     </CardTitle>
                     <CardDescription>
                       {recording.durationSeconds

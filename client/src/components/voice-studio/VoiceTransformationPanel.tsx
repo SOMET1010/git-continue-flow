@@ -45,16 +45,16 @@ export function VoiceTransformationPanel({ recordingId }: VoiceTransformationPan
     id: string;
     targetVoiceId: string;
     status: string;
-    createdAt: Date | string;
-    outputAudioUrl?: string;
-    errorMessage?: string;
-    processingTimeMs?: number;
+    createdAt: Date | string | null;
+    outputAudioUrl?: string | null;
+    errorMessage?: string | null;
+    processingTimeMs?: number | null;
   }
 
   useEffect(() => {
     const interval = setInterval(() => {
       const hasPending = transformations?.some(
-        (t: Transformation) => t.status === "pending" || t.status === "processing"
+        (t) => t.status === "pending" || t.status === "processing"
       );
       if (hasPending) {
         refetchTransformations();
@@ -209,7 +209,7 @@ export function VoiceTransformationPanel({ recordingId }: VoiceTransformationPan
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {transformations.map((transformation: Transformation) => {
+              {transformations.map((transformation) => {
                 const persona = VOICE_PERSONAS.find((p) => p.id === transformation.targetVoiceId);
                 return (
                   <div
@@ -220,7 +220,7 @@ export function VoiceTransformationPanel({ recordingId }: VoiceTransformationPan
                       <div>
                         <h4 className="font-medium">{persona?.name || "Voix inconnue"}</h4>
                         <p className="text-sm text-gray-500">
-                          {new Date(transformation.createdAt).toLocaleString()}
+                          {transformation.createdAt ? new Date(transformation.createdAt).toLocaleString() : 'Date inconnue'}
                         </p>
                       </div>
                       {getStatusBadge(transformation.status)}
