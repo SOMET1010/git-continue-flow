@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: number
+          is_active: boolean
+          language: string
+          last_signed_in: string
+          login_method: string | null
+          name: string | null
+          open_id: string
+          phone: string | null
+          phone_verified: boolean | null
+          pin_code: string | null
+          pin_failed_attempts: number | null
+          pin_locked_until: string | null
+          profile_photo_url: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: number
+          is_active?: boolean
+          language?: string
+          last_signed_in?: string
+          login_method?: string | null
+          name?: string | null
+          open_id: string
+          phone?: string | null
+          phone_verified?: boolean | null
+          pin_code?: string | null
+          pin_failed_attempts?: number | null
+          pin_locked_until?: string | null
+          profile_photo_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: number
+          is_active?: boolean
+          language?: string
+          last_signed_in?: string
+          login_method?: string | null
+          name?: string | null
+          open_id?: string
+          phone?: string | null
+          phone_verified?: boolean | null
+          pin_code?: string | null
+          pin_failed_attempts?: number | null
+          pin_locked_until?: string | null
+          profile_photo_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
