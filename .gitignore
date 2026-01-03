@@ -107,3 +107,7 @@ temp/
 *.sqlite3
 
 .env
+
+.ignored_node_modules/
+node_modules/
+
