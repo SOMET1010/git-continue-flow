@@ -1,225 +1,307 @@
-import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Volume2 } from 'lucide-react';
-import InstitutionalHeader from '@/components/InstitutionalHeader';
+import { Globe, LogIn, Menu } from 'lucide-react';
 import { AfricanPattern } from '@/components/ui/african-pattern';
+import VoiceHeroButton from '@/components/VoiceHeroButton';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 /**
  * Page d'accueil PNAVIM-CI - "L'ÂME DU MARCHÉ"
- * Design inspiré des marchés ivoiriens avec mascottes 3D et motifs Wax
- * Interface humanisée avec glassmorphism et textures africaines
+ * Charte graphique: Terre Battue, Glassmorphism, Wax Digital
+ * Layout: Hero central avec Tantie Sagesse + cartes secondaires
  */
 export default function Home() {
   const [, setLocation] = useLocation();
-  const [audioEnabled] = useState(false);
 
   const handleRoleSelection = (role: string) => {
-    if (audioEnabled) {
-      const audio = new Audio('/sounds/click.mp3');
-      audio.play().catch(() => {});
-    }
     setLocation(`/${role}`);
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Image de fond du marché ivoirien - ULTRA VIBRANTE */}
+    <div className="min-h-screen relative overflow-hidden font-inter">
+      {/* Background: Photo marché ivoirien floutée */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: 'url(/marche-ivoirien.jpg)',
-          filter: 'brightness(0.9) saturate(1.5) contrast(1.1)',
+          filter: 'blur(3px) brightness(0.85)',
         }}
       />
 
-      {/* Overlay dégradé Terre & Soleil - Plus subtil pour voir le marché */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#D35400]/30 via-[#E67E22]/20 to-[#27AE60]/25" />
+      {/* Overlay dégradé orange chaud */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#C25E00]/50 via-[#E67E22]/40 to-[#F1C40F]/30" />
+
+      {/* Motif Wax Digital en filigrane */}
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+        <AfricanPattern variant="wax" opacity={1} />
+      </div>
 
       {/* Contenu */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header institutionnel */}
-        <InstitutionalHeader />
-
-        {/* Contenu principal - ULTRA SIMPLIFIÉ */}
-        <main className="flex-1 container flex flex-col items-center justify-center py-12 px-4">
-
-          {/* Titre simplifié avec motifs */}
-          <div className="text-center mb-16 space-y-6">
-            <div className="relative inline-block">
-              <div className="absolute inset-0 text-[#D35400] opacity-10 scale-150">
-                <AfricanPattern variant="wax" opacity={0.3} />
+        {/* ===== HEADER ===== */}
+        <header className="w-full py-4 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl font-nunito font-extrabold text-[#C25E00]">P</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-white relative z-10 drop-shadow-2xl [text-shadow:_3px_3px_6px_rgb(0_0_0_/_50%)]">
-                Bienvenue
-              </h1>
+              <div className="hidden sm:block">
+                <h1 className="font-nunito font-extrabold text-white text-xl drop-shadow-lg">PNAVIM-CI</h1>
+                <p className="text-white/80 text-xs">Plateforme Nationale</p>
+              </div>
             </div>
 
-            <p className="text-3xl md:text-4xl text-amber-50 font-bold drop-shadow-xl">
-              Qui êtes-vous ?
-            </p>
+            {/* Navigation desktop */}
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#about" className="text-white/90 hover:text-white font-medium transition-colors">
+                À propos
+              </a>
+              <a href="#services" className="text-white/90 hover:text-white font-medium transition-colors">
+                Services
+              </a>
+              <a href="#contact" className="text-white/90 hover:text-white font-medium transition-colors">
+                Contact
+              </a>
+            </nav>
+
+            {/* Actions: Langue + Connexion */}
+            <div className="flex items-center gap-3">
+              {/* Sélecteur de langue */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 hover:text-white gap-2"
+                  >
+                    <Globe className="w-4 h-4" />
+                    <span className="hidden sm:inline">FR</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
+                  <DropdownMenuItem>🇨🇮 Dioula</DropdownMenuItem>
+                  <DropdownMenuItem>🌍 Nouchi</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Bouton Se connecter */}
+              <Button
+                onClick={() => setLocation('/login')}
+                className="bg-[#F1C40F] hover:bg-[#D4AC0D] text-[#2D3436] font-bold shadow-lg"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Se connecter</span>
+              </Button>
+
+              {/* Menu mobile */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
+        </header>
 
-          {/* 2 CARTES GLASSMORPHISM GÉANTES avec mascottes 3D */}
-          <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-            {/* MARCHAND - Card principale avec Tantie Sagesse */}
-            <button
-              onClick={() => handleRoleSelection('merchant')}
-              className="backdrop-blur-2xl bg-gradient-to-br from-[#C25E00]/85 via-[#D35400]/80 to-[#E67E22]/85 hover:from-[#A04000]/90 hover:via-[#C25E00]/85 hover:to-[#D35400]/90 text-white rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] transform hover:scale-[1.02] transition-all duration-300 p-8 group relative overflow-hidden border-2 border-white/20"
-            >
-              {/* Motif Wax diagonal en arrière-plan */}
-              <div className="absolute inset-0 text-white opacity-[0.08] pointer-events-none">
-                <AfricanPattern variant="geometric" opacity={0.5} />
-              </div>
-
-              {/* Badge "Accès principal" - Style Jaune Moutarde */}
-              <div className="absolute top-4 right-4 bg-gradient-to-r from-[#F1C40F] to-[#F39C12] text-yellow-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg border-2 border-yellow-600/50">
-                ⭐ Accès principal
-              </div>
-
-              <div className="relative z-10 flex flex-col items-start h-full">
-                {/* Texte en haut à gauche */}
-                <div className="mb-6">
-                  <h2 className="text-4xl font-bold mb-2 text-left leading-tight">
-                    Je suis<br />Marchand
-                  </h2>
-                  <p className="text-lg text-white/90 font-medium text-left">
-                    Encaisser, vendre et épargner
-                  </p>
-                </div>
-
-                {/* Mascotte 3D Tantie Sagesse - En bas à droite */}
-                <div className="mt-auto self-end relative">
-                  {/* Label "Tantie Sagesse" */}
-                  <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg z-20">
-                    <p className="text-[#C25E00] text-sm font-bold whitespace-nowrap">
-                      Tantie<br />Sagesse
-                    </p>
-                  </div>
-
-                  {/* Avatar 3D avec glow */}
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-yellow-400/30 rounded-full blur-2xl scale-110" />
-                    <img
-                      src="/suta-avatar-3d.png"
-                      alt="Tantie Sagesse"
-                      className="relative w-48 h-48 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                </div>
-
-                {/* Bouton vocal au centre bas */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border-2 border-white/30 shadow-xl">
-                    <div className="bg-white/30 p-2 rounded-full">
-                      <Volume2 className="w-5 h-5" />
+        {/* ===== MAIN CONTENT ===== */}
+        <main className="flex-1 flex flex-col items-center justify-center py-8 px-4">
+          <div className="w-full max-w-6xl">
+            {/* Layout: Hero card + Cartes secondaires */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              
+              {/* ===== CARTE HERO CENTRALE (Marchand) ===== */}
+              <div className="lg:col-span-2 relative">
+                <button
+                  onClick={() => handleRoleSelection('merchant')}
+                  className="w-full text-left group"
+                >
+                  {/* Carte Glassmorphism */}
+                  <div className="relative bg-white/85 backdrop-blur-xl rounded-[2.5rem] border-2 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.15)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.2)] transition-all duration-300 overflow-hidden p-8 lg:p-10 min-h-[400px] lg:min-h-[450px]">
+                    
+                    {/* Motif Wax en arrière-plan de la carte */}
+                    <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+                      <AfricanPattern variant="geometric" opacity={1} />
                     </div>
-                    <span className="text-base font-semibold">Cliquez pour écouter</span>
-                  </div>
-                </div>
-              </div>
-            </button>
 
-            {/* AGENT TERRAIN - Card secondaire avec mascotte */}
-            <button
-              onClick={() => handleRoleSelection('agent')}
-              className="backdrop-blur-2xl bg-gradient-to-br from-[#2E7D32]/85 via-[#27AE60]/80 to-[#4CAF50]/85 hover:from-[#1B5E20]/90 hover:via-[#2E7D32]/85 hover:to-[#27AE60]/90 text-white rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] transform hover:scale-[1.02] transition-all duration-300 p-8 group relative overflow-hidden border-2 border-white/20"
-            >
-              {/* Motif Géométrique en arrière-plan */}
-              <div className="absolute inset-0 text-white opacity-[0.08] pointer-events-none">
-                <AfricanPattern variant="wax" opacity={0.5} />
-              </div>
+                    {/* Contenu */}
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Badge */}
+                      <div className="inline-flex self-start items-center gap-2 bg-gradient-to-r from-[#F1C40F] to-[#F39C12] text-[#2D3436] px-4 py-2 rounded-full text-sm font-bold shadow-md mb-6">
+                        ⭐ Accès principal
+                      </div>
 
-              <div className="relative z-10 flex flex-col items-start h-full">
-                {/* Texte en haut à gauche */}
-                <div className="mb-6">
-                  <h2 className="text-4xl font-bold mb-2 text-left leading-tight">
-                    Agent<br />terrain
-                  </h2>
-                  <p className="text-lg text-white/90 font-medium text-left">
-                    Accompagner les marchands
-                  </p>
-                </div>
+                      {/* Titre */}
+                      <h2 className="font-nunito font-extrabold text-[#2D3436] text-4xl lg:text-5xl mb-3 leading-tight">
+                        Je suis<br />Marchand
+                      </h2>
 
-                {/* Mascotte Agent - En bas à droite */}
-                <div className="mt-auto self-end relative">
-                  {/* Label "Agent terrain" */}
-                  <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg z-20">
-                    <p className="text-[#2E7D32] text-sm font-bold whitespace-nowrap">
-                      Agent<br />terrain
-                    </p>
-                  </div>
+                      {/* Sous-texte */}
+                      <p className="text-[#636E72] text-lg lg:text-xl font-medium mb-8">
+                        Encaisser, vendre et épargner
+                      </p>
 
-                  {/* Pictogramme Agent avec glow */}
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-green-400/30 rounded-full blur-2xl scale-110" />
-                    <img
-                      src="/pictograms/agent.png"
-                      alt="Agent terrain"
-                      className="relative w-48 h-48 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                </div>
-
-                {/* Bouton vocal au centre bas */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-                  <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border-2 border-white/30 shadow-xl">
-                    <div className="bg-white/30 p-2 rounded-full">
-                      <Volume2 className="w-5 h-5" />
+                      {/* CTA Vocal */}
+                      <div className="mt-auto mb-4">
+                        <VoiceHeroButton
+                          label="Cliquez pour écouter"
+                          size="large"
+                        />
+                      </div>
                     </div>
-                    <span className="text-base font-semibold">Agent terrain</span>
+
+                    {/* Mascotte Tantie Sagesse - Débordement à droite */}
+                    <div className="absolute -right-4 lg:-right-8 bottom-0 pointer-events-none">
+                      {/* Glow effect */}
+                      <div className="absolute inset-0 bg-[#F1C40F]/30 rounded-full blur-3xl scale-75 translate-y-8" />
+                      
+                      {/* Label */}
+                      <div className="absolute top-4 right-8 lg:right-16 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg z-10 border border-white/50">
+                        <p className="text-[#C25E00] text-sm font-bold text-center leading-tight">
+                          Tantie<br />Sagesse
+                        </p>
+                      </div>
+
+                      {/* Avatar 3D */}
+                      <img
+                        src="/suta-avatar-3d.png"
+                        alt="Tantie Sagesse - Votre guide PNAVIM"
+                        className="relative w-48 h-48 lg:w-64 lg:h-64 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-            </button>
-
-          </div>
-
-          {/* Carte Coopérative (petite) - En bas */}
-          <div className="mt-12 w-full max-w-5xl">
-            <button
-              onClick={() => handleRoleSelection('cooperative')}
-              className="backdrop-blur-2xl bg-gradient-to-br from-[#D35400]/70 via-[#C25E00]/65 to-[#A04000]/70 text-white rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)] transform hover:scale-[1.02] transition-all duration-300 p-6 group relative overflow-hidden border-2 border-white/20 w-full max-w-md"
-            >
-              {/* Motif en arrière-plan */}
-              <div className="absolute inset-0 text-white opacity-[0.08] pointer-events-none">
-                <AfricanPattern variant="kente" opacity={0.5} />
+                </button>
               </div>
 
-              <div className="relative z-10 flex items-center gap-6">
-                {/* Texte */}
-                <div className="flex-1 text-left">
-                  <h3 className="text-2xl font-bold mb-1">Coopérative</h3>
-                  <p className="text-sm text-white/90">Gérer ensemble</p>
-                </div>
+              {/* ===== CARTES SECONDAIRES (Droite) ===== */}
+              <div className="flex flex-col gap-6">
+                
+                {/* Carte Agent terrain */}
+                <button
+                  onClick={() => handleRoleSelection('agent')}
+                  className="w-full text-left group"
+                >
+                  <div className="relative bg-white/80 backdrop-blur-lg rounded-[2rem] border-2 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)] transition-all duration-300 overflow-hidden p-6 min-h-[180px]">
+                    
+                    {/* Accent couleur vert manioc */}
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#2E7D32] to-[#4CAF50]" />
 
-                {/* Mini mascotte */}
-                <div className="relative">
-                  <img
-                    src="/pictograms/cooperative.png"
-                    alt="Coopérative"
-                    className="w-20 h-20 object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
+                    {/* Motif */}
+                    <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
+                      <AfricanPattern variant="wax" opacity={1} />
+                    </div>
+
+                    <div className="relative z-10 flex items-center gap-4">
+                      {/* Texte */}
+                      <div className="flex-1">
+                        <h3 className="font-nunito font-bold text-[#2D3436] text-2xl mb-1">
+                          Agent terrain
+                        </h3>
+                        <p className="text-[#636E72] text-base">
+                          Accompagner les marchands
+                        </p>
+                        
+                        {/* Mini bouton play */}
+                        <div className="mt-4">
+                          <VoiceHeroButton
+                            label="Écouter"
+                            size="default"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Vignette */}
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-[#2E7D32]/20 rounded-full blur-xl scale-110" />
+                        <img
+                          src="/pictograms/agent.png"
+                          alt="Agent terrain"
+                          className="relative w-24 h-24 object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Carte Coopérative */}
+                <button
+                  onClick={() => handleRoleSelection('cooperative')}
+                  className="w-full text-left group"
+                >
+                  <div className="relative bg-white/80 backdrop-blur-lg rounded-[2rem] border-2 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)] transition-all duration-300 overflow-hidden p-6 min-h-[180px]">
+                    
+                    {/* Accent couleur terre profond */}
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#A04000] to-[#C25E00]" />
+
+                    {/* Motif */}
+                    <div className="absolute inset-0 opacity-[0.04] pointer-events-none">
+                      <AfricanPattern variant="kente" opacity={1} />
+                    </div>
+
+                    <div className="relative z-10 flex items-center gap-4">
+                      {/* Texte */}
+                      <div className="flex-1">
+                        <h3 className="font-nunito font-bold text-[#2D3436] text-2xl mb-1">
+                          Coopérative
+                        </h3>
+                        <p className="text-[#636E72] text-base">
+                          Gérer ensemble
+                        </p>
+                        
+                        {/* Mini bouton play */}
+                        <div className="mt-4">
+                          <VoiceHeroButton
+                            label="Écouter"
+                            size="default"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Vignette */}
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-[#C25E00]/20 rounded-full blur-xl scale-110" />
+                        <img
+                          src="/pictograms/cooperative.png"
+                          alt="Coopérative"
+                          className="relative w-24 h-24 object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
               </div>
-            </button>
+            </div>
           </div>
         </main>
 
-        {/* Footer avec glassmorphism */}
-        <footer className="container py-8 text-center relative z-10">
-          <div className="inline-block backdrop-blur-xl bg-white/90 rounded-2xl px-10 py-6 shadow-2xl border-2 border-amber-200/50 relative overflow-hidden">
-            {/* Motif subtil */}
-            <div className="absolute inset-0 text-[#D35400] opacity-5 pointer-events-none">
-              <AfricanPattern variant="geometric" opacity={0.3} />
-            </div>
-            <div className="relative z-10">
-              <p className="text-xl text-gray-800 font-bold">
-                République de Côte d'Ivoire
-              </p>
-              <p className="text-lg text-gray-600 mt-1 font-semibold">
-                DGE • ANSUT
-              </p>
+        {/* ===== FOOTER GLASSMORPHISM ===== */}
+        <footer className="py-6 px-4">
+          <div className="max-w-7xl mx-auto flex justify-center">
+            <div className="inline-flex items-center gap-4 bg-white/90 backdrop-blur-xl rounded-2xl px-8 py-4 shadow-lg border border-white/50">
+              {/* Logo partenaires */}
+              <img
+                src="/logos/partners.png"
+                alt="Partenaires institutionnels"
+                className="h-8 object-contain opacity-80"
+              />
+              <div className="h-8 w-px bg-[#2D3436]/20" />
+              <div className="text-center">
+                <p className="font-nunito font-bold text-[#2D3436] text-sm">
+                  République de Côte d'Ivoire
+                </p>
+                <p className="text-[#636E72] text-xs">
+                  DGE • ANSUT
+                </p>
+              </div>
             </div>
           </div>
         </footer>
