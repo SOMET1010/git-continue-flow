@@ -1,0 +1,17 @@
+export const ENV = {
+  appId: process.env.VITE_APP_ID ?? "",
+  cookieSecret: process.env.JWT_SECRET ?? "",
+  databaseUrl: process.env.DATABASE_URL ?? "",
+  oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
+  ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
+  isProduction: process.env.NODE_ENV === "production",
+  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
+  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  elevenlabsApiKey: process.env.ELEVENLABS_API_KEY ?? "",
+  elevenlabsTantieVoiceId: process.env.ELEVENLABS_TANTIE_VOICE_ID ?? "",
+  elevenlabsProVoiceId: process.env.ELEVENLABS_PRO_VOICE_ID ?? "",
+  elevenlabsAmbianceurVoiceId: process.env.ELEVENLABS_AMBIANCEUR_VOICE_ID ?? "",
+  smsApiUrl: process.env.SMS_API_URL ?? "",
+  smsApiKey: process.env.SMS_API_KEY ?? "",
+  smsSenderId: process.env.SMS_SENDER_ID ?? "",
+};
