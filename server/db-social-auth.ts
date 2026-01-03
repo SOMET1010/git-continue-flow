@@ -285,10 +285,12 @@ export async function createUserWithPhone(data: {
     phone: data.phone,
     name: data.name,
     pinCode: pinHash,
-    // phoneVerified: false, // TODO: Enable when schema column is added
     loginMethod: 'phone_social',
     role: 'merchant',
   }).returning();
+
+  // Set phoneVerified via raw SQL (column exists in DB but not in Drizzle schema)
+  await db.execute(sql`UPDATE users SET phone_verified = false WHERE id = ${user.id}`);
 
   return user;
 }
@@ -307,27 +309,63 @@ export async function verifyPinCode(userId: number, pinCode: string): Promise<bo
   return bcrypt.compare(pinCode, user.pinCode);
 }
 
-// NOTE: PIN authentication functions require schema columns that must be added to drizzle/schema.ts:
-// - phoneVerified: boolean("phone_verified").default(false)
-// - pinFailedAttempts: integer("pin_failed_attempts").default(0)  
-// - pinLockedUntil: timestamp("pin_locked_until", { withTimezone: true })
-// - profilePhotoUrl: text("profile_photo_url")
-
 export async function incrementPinFailedAttempts(userId: number) {
-  // TODO: Re-enable when drizzle/schema.ts is updated with pinFailedAttempts column
-  console.warn('[db-social-auth] incrementPinFailedAttempts: Schema columns not available in drizzle/schema.ts');
-  return { locked: false, attempts: 0 };
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const MAX_ATTEMPTS = 5;
+  const LOCK_DURATION_MINUTES = 15;
+
+  // Use raw SQL since columns exist in DB but not in Drizzle schema
+  await db.execute(sql`
+    UPDATE users 
+    SET pin_failed_attempts = COALESCE(pin_failed_attempts, 0) + 1 
+    WHERE id = ${userId}
+  `);
+
+  const result = await db.execute(sql`
+    SELECT pin_failed_attempts FROM users WHERE id = ${userId}
+  `);
+  
+  const attempts = (result[0] as any)?.pin_failed_attempts ?? 0;
+
+  if (attempts >= MAX_ATTEMPTS) {
+    const lockUntil = new Date();
+    lockUntil.setMinutes(lockUntil.getMinutes() + LOCK_DURATION_MINUTES);
+    
+    await db.execute(sql`
+      UPDATE users SET pin_locked_until = ${lockUntil} WHERE id = ${userId}
+    `);
+
+    return { locked: true, attempts };
+  }
+
+  return { locked: false, attempts };
 }
 
 export async function resetPinFailedAttempts(userId: number) {
-  // TODO: Re-enable when drizzle/schema.ts is updated with pinFailedAttempts column
-  console.warn('[db-social-auth] resetPinFailedAttempts: Schema columns not available in drizzle/schema.ts');
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.execute(sql`
+    UPDATE users 
+    SET pin_failed_attempts = 0, pin_locked_until = NULL 
+    WHERE id = ${userId}
+  `);
 }
 
 export async function isAccountLocked(userId: number): Promise<boolean> {
-  // TODO: Re-enable when drizzle/schema.ts is updated with pinLockedUntil column
-  console.warn('[db-social-auth] isAccountLocked: Schema columns not available in drizzle/schema.ts');
-  return false;
+  const db = await getDb();
+  if (!db) return false;
+
+  const result = await db.execute(sql`
+    SELECT pin_locked_until FROM users WHERE id = ${userId}
+  `);
+
+  const lockedUntil = (result[0] as any)?.pin_locked_until;
+  if (!lockedUntil) return false;
+  
+  return new Date() < new Date(lockedUntil);
 }
 
 export async function updatePinCode(userId: number, newPinCode: string) {
@@ -351,9 +389,10 @@ export async function markPhoneAsVerified(userId: number) {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
 
-  // TODO: Re-enable when drizzle/schema.ts is updated with phoneVerified column
-  console.warn('[db-social-auth] markPhoneAsVerified: Schema columns not available in drizzle/schema.ts');
-  
+  await db.execute(sql`
+    UPDATE users SET phone_verified = true WHERE id = ${userId}
+  `);
+
   const [user] = await db
     .select()
     .from(users)
