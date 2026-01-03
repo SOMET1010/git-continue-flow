@@ -285,7 +285,7 @@ export async function createUserWithPhone(data: {
     phone: data.phone,
     name: data.name,
     pinCode: pinHash,
-    // phoneVerified: false, // TODO: Enable when schema is updated
+    // phoneVerified: false, // TODO: Enable when schema column is added
     loginMethod: 'phone_social',
     role: 'merchant',
   }).returning();
@@ -307,26 +307,26 @@ export async function verifyPinCode(userId: number, pinCode: string): Promise<bo
   return bcrypt.compare(pinCode, user.pinCode);
 }
 
-// NOTE: The following functions require schema columns that don't exist yet.
-// They will be enabled once the schema is updated with:
-// - pinFailedAttempts: integer
-// - pinLockedUntil: timestamp
-// - phoneVerified: boolean
+// NOTE: PIN authentication functions require schema columns that must be added to drizzle/schema.ts:
+// - phoneVerified: boolean("phone_verified").default(false)
+// - pinFailedAttempts: integer("pin_failed_attempts").default(0)  
+// - pinLockedUntil: timestamp("pin_locked_until", { withTimezone: true })
+// - profilePhotoUrl: text("profile_photo_url")
 
 export async function incrementPinFailedAttempts(userId: number) {
-  // TODO: Re-enable when schema is updated
-  console.warn('[db-social-auth] incrementPinFailedAttempts: Schema columns not available');
+  // TODO: Re-enable when drizzle/schema.ts is updated with pinFailedAttempts column
+  console.warn('[db-social-auth] incrementPinFailedAttempts: Schema columns not available in drizzle/schema.ts');
   return { locked: false, attempts: 0 };
 }
 
 export async function resetPinFailedAttempts(userId: number) {
-  // TODO: Re-enable when schema is updated
-  console.warn('[db-social-auth] resetPinFailedAttempts: Schema columns not available');
+  // TODO: Re-enable when drizzle/schema.ts is updated with pinFailedAttempts column
+  console.warn('[db-social-auth] resetPinFailedAttempts: Schema columns not available in drizzle/schema.ts');
 }
 
 export async function isAccountLocked(userId: number): Promise<boolean> {
-  // TODO: Re-enable when schema is updated
-  console.warn('[db-social-auth] isAccountLocked: Schema columns not available');
+  // TODO: Re-enable when drizzle/schema.ts is updated with pinLockedUntil column
+  console.warn('[db-social-auth] isAccountLocked: Schema columns not available in drizzle/schema.ts');
   return false;
 }
 
@@ -351,8 +351,8 @@ export async function markPhoneAsVerified(userId: number) {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
 
-  // TODO: Re-enable when schema is updated with phoneVerified column
-  console.warn('[db-social-auth] markPhoneAsVerified: Schema columns not available');
+  // TODO: Re-enable when drizzle/schema.ts is updated with phoneVerified column
+  console.warn('[db-social-auth] markPhoneAsVerified: Schema columns not available in drizzle/schema.ts');
   
   const [user] = await db
     .select()
