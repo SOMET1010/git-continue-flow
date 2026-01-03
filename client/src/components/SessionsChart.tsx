@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface SessionsChartProps {
   data: Array<{
-    date: Date;
+    date: Date | string;
     hoursWorked: number;
   }>;
   title?: string;

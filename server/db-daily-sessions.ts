@@ -4,14 +4,20 @@ import type { MerchantDailySession, InsertMerchantDailySession } from "../drizzl
 import { eq, and, sql, desc } from "drizzle-orm";
 
 /**
+ * Helper to format date as YYYY-MM-DD string for PostgreSQL date columns
+ */
+function formatDateString(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+/**
  * Récupérer la session du jour pour un marchand
  */
 export async function getTodaySession(merchantId: number): Promise<MerchantDailySession | null> {
   const db = await getDb();
   if (!db) return null;
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to midnight
+  const todayStr = formatDateString(new Date());
   
   const [session] = await db
     .select()
@@ -19,7 +25,7 @@ export async function getTodaySession(merchantId: number): Promise<MerchantDaily
     .where(
       and(
         eq(schema.merchantDailySessions.merchantId, merchantId),
-        eq(schema.merchantDailySessions.sessionDate, today)
+        eq(schema.merchantDailySessions.sessionDate, todayStr)
       )
     )
     .limit(1);
@@ -37,15 +43,14 @@ export async function openDaySession(
   const db = await getDb();
   if (!db) return null;
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDateString(new Date());
   
   // Vérifier si une session existe déjà
   const existing = await getTodaySession(merchantId);
   
   if (existing) {
     // Mettre à jour la session existante
-    const [updated] = await db
+    await db
       .update(schema.merchantDailySessions)
       .set({
         openedAt: new Date(),
@@ -55,7 +60,7 @@ export async function openDaySession(
       .where(eq(schema.merchantDailySessions.id, existing.id));
     
     // Récupérer la session mise à jour
-    return getTodaySession(merchantId) || null;
+    return getTodaySession(merchantId);
   }
   
   // Créer une nouvelle session
@@ -63,12 +68,12 @@ export async function openDaySession(
     .insert(schema.merchantDailySessions)
     .values({
       merchantId,
-      sessionDate: today,
+      sessionDate: todayStr,
       openedAt: new Date(),
       openingNotes,
     });
   
-  return getTodaySession(merchantId) || null;
+  return getTodaySession(merchantId);
 }
 
 /**
@@ -80,9 +85,6 @@ export async function closeDaySession(
 ): Promise<MerchantDailySession | null> {
   const db = await getDb();
   if (!db) return null;
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   
   const existing = await getTodaySession(merchantId);
   
@@ -99,7 +101,7 @@ export async function closeDaySession(
     })
     .where(eq(schema.merchantDailySessions.id, existing.id));
   
-  return getTodaySession(merchantId) || null;
+  return getTodaySession(merchantId);
 }
 
 /**
@@ -108,9 +110,6 @@ export async function closeDaySession(
 export async function reopenDaySession(merchantId: number): Promise<MerchantDailySession | null> {
   const db = await getDb();
   if (!db) return null;
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   
   const existing = await getTodaySession(merchantId);
   
@@ -126,7 +125,7 @@ export async function reopenDaySession(merchantId: number): Promise<MerchantDail
     })
     .where(eq(schema.merchantDailySessions.id, existing.id));
   
-  return getTodaySession(merchantId) || null;
+  return getTodaySession(merchantId);
 }
 
 /**
@@ -156,7 +155,7 @@ export async function checkUnclosedYesterday(merchantId: number): Promise<Mercha
   
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
+  const yesterdayStr = formatDateString(yesterday);
   
   const [session] = await db
     .select()
@@ -164,7 +163,7 @@ export async function checkUnclosedYesterday(merchantId: number): Promise<Mercha
     .where(
       and(
         eq(schema.merchantDailySessions.merchantId, merchantId),
-        eq(schema.merchantDailySessions.sessionDate, yesterday),
+        eq(schema.merchantDailySessions.sessionDate, yesterdayStr),
         sql`${schema.merchantDailySessions.openedAt} IS NOT NULL`,
         sql`${schema.merchantDailySessions.closedAt} IS NULL`
       )

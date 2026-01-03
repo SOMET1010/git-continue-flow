@@ -141,7 +141,14 @@ class ElevenLabsService {
     const voiceSettings = this.getVoiceSettings(options.persona);
 
     const formData = new FormData();
-    formData.append('audio', new Blob([options.audioFile], { type: 'audio/mpeg' }));
+    // Create a proper ArrayBuffer copy to avoid SharedArrayBuffer type issues
+    const audioBuffer = new ArrayBuffer(options.audioFile.byteLength);
+    new Uint8Array(audioBuffer).set(new Uint8Array(
+      options.audioFile.buffer,
+      options.audioFile.byteOffset,
+      options.audioFile.byteLength
+    ));
+    formData.append('audio', new Blob([audioBuffer], { type: 'audio/mpeg' }));
     formData.append('model_id', options.modelId || 'eleven_multilingual_sts_v2');
     formData.append('voice_settings', JSON.stringify(voiceSettings));
 
