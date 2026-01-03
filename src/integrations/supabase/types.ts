@@ -14,6 +14,344 @@ export type Database = {
   }
   public: {
     Tables: {
+      agents: {
+        Row: {
+          agent_code: string | null
+          created_at: string
+          id: number
+          is_active: boolean | null
+          total_enrollments: number | null
+          user_id: number
+          zone: string | null
+        }
+        Insert: {
+          agent_code?: string | null
+          created_at?: string
+          id?: number
+          is_active?: boolean | null
+          total_enrollments?: number | null
+          user_id: number
+          zone?: string | null
+        }
+        Update: {
+          agent_code?: string | null
+          created_at?: string
+          id?: number
+          is_active?: boolean | null
+          total_enrollments?: number | null
+          user_id?: number
+          zone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merchant_stock: {
+        Row: {
+          created_at: string
+          id: number
+          last_restocked: string | null
+          merchant_id: number
+          min_threshold: number | null
+          product_id: number
+          quantity: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          last_restocked?: string | null
+          merchant_id: number
+          min_threshold?: number | null
+          product_id: number
+          quantity?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          last_restocked?: string | null
+          merchant_id?: number
+          min_threshold?: number | null
+          product_id?: number
+          quantity?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_stock_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      merchants: {
+        Row: {
+          activity_type: string | null
+          business_name: string | null
+          cmu_expiry: string | null
+          cmu_number: string | null
+          cnps_expiry: string | null
+          cnps_number: string | null
+          created_at: string
+          enrolled_at: string | null
+          enrolled_by: number | null
+          id: number
+          is_active: boolean | null
+          latitude: number | null
+          location_description: string | null
+          longitude: number | null
+          market_id: number | null
+          merchant_number: string | null
+          rsti_expiry: string | null
+          rsti_number: string | null
+          suta_score: number | null
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          activity_type?: string | null
+          business_name?: string | null
+          cmu_expiry?: string | null
+          cmu_number?: string | null
+          cnps_expiry?: string | null
+          cnps_number?: string | null
+          created_at?: string
+          enrolled_at?: string | null
+          enrolled_by?: number | null
+          id?: number
+          is_active?: boolean | null
+          latitude?: number | null
+          location_description?: string | null
+          longitude?: number | null
+          market_id?: number | null
+          merchant_number?: string | null
+          rsti_expiry?: string | null
+          rsti_number?: string | null
+          suta_score?: number | null
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          activity_type?: string | null
+          business_name?: string | null
+          cmu_expiry?: string | null
+          cmu_number?: string | null
+          cnps_expiry?: string | null
+          cnps_number?: string | null
+          created_at?: string
+          enrolled_at?: string | null
+          enrolled_by?: number | null
+          id?: number
+          is_active?: boolean | null
+          latitude?: number | null
+          location_description?: string | null
+          longitude?: number | null
+          market_id?: number | null
+          merchant_number?: string | null
+          rsti_expiry?: string | null
+          rsti_number?: string | null
+          suta_score?: number | null
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          base_price: number | null
+          category: string | null
+          created_at: string
+          id: number
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          name_dioula: string | null
+          pictogram_url: string | null
+          unit: string
+        }
+        Insert: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          name_dioula?: string | null
+          pictogram_url?: string | null
+          unit?: string
+        }
+        Update: {
+          base_price?: number | null
+          category?: string | null
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          name_dioula?: string | null
+          pictogram_url?: string | null
+          unit?: string
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string
+          id: number
+          is_synced: boolean | null
+          merchant_id: number
+          payment_method: string | null
+          product_id: number | null
+          product_name: string | null
+          quantity: number
+          sale_date: string
+          total_amount: number
+          unit_price: number
+          voice_input: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_synced?: boolean | null
+          merchant_id: number
+          payment_method?: string | null
+          product_id?: number | null
+          product_name?: string | null
+          quantity: number
+          sale_date?: string
+          total_amount: number
+          unit_price: number
+          voice_input?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_synced?: boolean | null
+          merchant_id?: number
+          payment_method?: string | null
+          product_id?: number | null
+          product_name?: string | null
+          quantity?: number
+          sale_date?: string
+          total_amount?: number
+          unit_price?: number
+          voice_input?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_goals: {
+        Row: {
+          created_at: string
+          current_amount: number | null
+          deadline: string | null
+          id: number
+          is_completed: boolean | null
+          merchant_id: number
+          name: string
+          target_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          id?: number
+          is_completed?: boolean | null
+          merchant_id: number
+          name: string
+          target_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          id?: number
+          is_completed?: boolean | null
+          merchant_id?: number
+          name?: string
+          target_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_goals_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
@@ -79,10 +417,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "agent" | "merchant" | "cooperative"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +553,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "agent", "merchant", "cooperative"],
+    },
   },
 } as const
