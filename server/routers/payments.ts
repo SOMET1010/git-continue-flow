@@ -95,7 +95,7 @@ export const paymentsRouter = router({
           status: "pending",
           reference,
         })
-        .$returningId();
+        .returning({ id: transactions.id });
 
       // 3. MODE SIMULATION ou appel API Chipdeals
       if (SIMULATION_MODE) {

@@ -8,6 +8,7 @@ import { getSignedUploadUrl, getSignedDownloadUrl } from "../storage";
 import { elevenlabsService } from "../_core/elevenlabs";
 import type { VoicePersona } from "../../shared/voice-personas";
 import { ENV } from "../_core/env";
+import * as schema from "../../drizzle/schema-voice-production";
 
 const getPersonaFromVoiceId = (voiceId: string): VoicePersona => {
   if (voiceId === ENV.elevenlabsTantieVoiceId) return "tantie";
@@ -63,20 +64,19 @@ export const voiceProductionRouter = router({
         conditions.push(eq(voiceRecordings.status, input.status));
       }
 
-      const recordings = await db.query.voiceRecordings.findMany({
-        where: conditions.length > 0 ? and(...conditions) : undefined,
-        orderBy: [desc(voiceRecordings.createdAt)],
-        with: {
-          transformations: true,
-        },
-      });
+      const recordings = await db
+        .select()
+        .from(voiceRecordings)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(voiceRecordings.createdAt));
 
       const recordingsWithUrls = await Promise.all(
-        recordings.map(async (recording) => {
+        recordings.map(async (recording: typeof schema.voiceRecordings.$inferSelect) => {
           const audioUrl = await getSignedDownloadUrl(recording.audioUrl);
           return {
             ...recording,
             audioUrl,
+            transformations: [] as typeof schema.voiceTransformations.$inferSelect[],
           };
         })
       );
@@ -92,9 +92,11 @@ export const voiceProductionRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const recording = await db.query.voiceRecordings.findFirst({
-        where: eq(voiceRecordings.id, input.id),
-      });
+      const [recording] = await db
+        .select()
+        .from(voiceRecordings)
+        .where(eq(voiceRecordings.id, input.id))
+        .limit(1);
 
       if (!recording) {
         throw new TRPCError({
@@ -165,9 +167,11 @@ export const voiceProductionRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const recording = await db.query.voiceRecordings.findFirst({
-        where: eq(voiceRecordings.id, input.recordingId),
-      });
+      const [recording] = await db
+        .select()
+        .from(voiceRecordings)
+        .where(eq(voiceRecordings.id, input.recordingId))
+        .limit(1);
 
       if (!recording) {
         throw new TRPCError({
@@ -265,9 +269,11 @@ export const voiceProductionRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const transformation = await db.query.voiceTransformations.findFirst({
-        where: eq(voiceTransformations.id, input.id),
-      });
+      const [transformation] = await db
+        .select()
+        .from(voiceTransformations)
+        .where(eq(voiceTransformations.id, input.id))
+        .limit(1);
 
       if (!transformation) {
         throw new TRPCError({
@@ -306,13 +312,14 @@ export const voiceProductionRouter = router({
         conditions.push(eq(voiceTransformations.status, input.status));
       }
 
-      const transformations = await db.query.voiceTransformations.findMany({
-        where: conditions.length > 0 ? and(...conditions) : undefined,
-        orderBy: [desc(voiceTransformations.createdAt)],
-      });
+      const transformations = await db
+        .select()
+        .from(voiceTransformations)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(voiceTransformations.createdAt));
 
       const transformationsWithUrls = await Promise.all(
-        transformations.map(async (transformation) => {
+        transformations.map(async (transformation: typeof schema.voiceTransformations.$inferSelect) => {
           let outputAudioUrl = null;
           if (transformation.outputAudioUrl) {
             outputAudioUrl = await getSignedDownloadUrl(transformation.outputAudioUrl);
@@ -362,10 +369,11 @@ export const voiceProductionRouter = router({
         conditions.push(eq(voicePersonasCustom.isActive, input.isActive));
       }
 
-      const personas = await db.query.voicePersonasCustom.findMany({
-        where: conditions.length > 0 ? and(...conditions) : undefined,
-        orderBy: [desc(voicePersonasCustom.createdAt)],
-      });
+      const personas = await db
+        .select()
+        .from(voicePersonasCustom)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(voicePersonasCustom.createdAt));
 
       return personas;
     }),

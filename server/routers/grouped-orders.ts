@@ -53,7 +53,7 @@ export const groupedOrdersRouter = router({
         totalAmount: '0',
         status: 'draft',
         createdBy: ctx.user.id,
-      }).$returningId();
+      }).returning({ id: groupedOrders.id });
 
       // Notifier tous les membres de la coopérative
       const members = await db

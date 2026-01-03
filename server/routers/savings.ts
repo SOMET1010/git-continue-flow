@@ -33,7 +33,7 @@ export const savingsRouter = router({
         merchantId: input.merchantId,
         name: input.name,
         targetAmount: input.targetAmount.toString(),
-        deadline: input.deadline,
+        deadline: input.deadline?.toISOString().split('T')[0],
       });
       return result;
     }),
@@ -144,8 +144,9 @@ export const savingsRouter = router({
     .mutation(async ({ input }) => {
       const { goalId, ...data } = input;
       const result = await updateSavingsGoal(goalId, {
-        ...data,
+        name: data.name,
         targetAmount: data.targetAmount?.toString(),
+        deadline: data.deadline?.toISOString().split('T')[0],
       });
       return result;
     }),

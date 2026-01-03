@@ -26,7 +26,7 @@ export async function createOrder(orderData: {
       totalAmount: orderData.totalAmount.toString(),
       deliveryDate: orderData.deliveryDate,
     })
-    .$returningId();
+    .returning({ id: virtualMarketOrders.id });
 
   return order;
 }

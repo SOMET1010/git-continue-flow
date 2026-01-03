@@ -277,7 +277,11 @@ export async function createUserWithPhone(data: {
 
   const pinHash = await bcrypt.hash(data.pinCode, 10);
 
+  // Generate unique openId for phone-based users
+  const openId = `phone-${data.phone.replace(/\+/g, '')}-${Date.now()}`;
+
   const [user] = await db.insert(users).values({
+    openId,
     phone: data.phone,
     name: data.name,
     pinCode: pinHash,
